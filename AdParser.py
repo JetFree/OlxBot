@@ -66,7 +66,12 @@ class Parser:
             try:
                 soup = BeautifulSoup(response.content, "html.parser")
                 elem = soup.find("a", attrs={"data-testid": "refresh-link"})
-                self.id = elem["href"].split("id=")[1]
+                if elem is None:
+                    self.id = None
+                    print("Can't parse ad's id. Looks like this ad is"
+                          " not actual anymore.")
+                else:
+                    self.id = elem["href"].split("id=")[1]
             except Exception as e:
                 print(e)
         else:
