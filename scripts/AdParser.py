@@ -1,7 +1,7 @@
 import datetime
 import re
 from bs4 import BeautifulSoup
-from AdObject import Ad
+from scripts.AdObject import Ad
 
 
 class Parser:
