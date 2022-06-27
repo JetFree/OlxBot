@@ -1,10 +1,7 @@
-import datetime
 import time
-
 import requests
 import telebot
 
-import AdObject
 import AdParser
 
 bot = telebot.TeleBot("5244658028:AAF7lbFLl8Mfg5_j_YjJ-1Va34S9nlnt2jE")
@@ -14,6 +11,7 @@ url = "https://www.olx.pl/nieruchomosci/mieszkania/wynajem/warszawa/" \
       "search[filter_enum_rooms][0]=two&" \
       "search[filter_enum_rooms][1]=three"
 last_updated_datetime = None
+base_url = "https://olx.pl"
 
 
 def find_new_ads(ads_list):
@@ -45,12 +43,16 @@ def construct_msg(ad):
 
 @bot.message_handler(commands=["start"])
 def start(m, res=False):
-    # bot.send_message(m.chat.id, 'Я на связи. Напиши мне что-нибудь )')
+    bot.send_message(m.chat.id, 'Привет, Я помогаю найти квартиру с '
+                                'помощью сайта Olx.pl')
+    bot.send_message(m.chat.id, 'Всё, что мне от тебя нужно, это сбросить ссылку'
+                                ' с нужными тебе применёнными фильтрами поиска')
+    bot.send_message(m.chat.id, f'Например: {url}')
     while True:
         session = requests.Session()
         resp = session.get(url)
         ad_parser = AdParser.Parser(resp.content, session)
-        ads_list = ad_parser.parse_ads()
+        ads_list = ad_parser.parse_ads(base_url)
         new_ads = find_new_ads(ads_list)
         if len(new_ads) > 0:
             for adOjb in new_ads:
@@ -63,7 +65,7 @@ def start(m, res=False):
                                  parse_mode="MARKDOWN", reply_markup=keyboard)
                 bot.send_media_group(m.chat.id, [telebot.types.InputMediaPhoto(
                     open(photo, 'rb')) for photo in adOjb.get_files()[0:10]])
-        time.sleep(20)
+        time.sleep(60)
 
 
 @bot.message_handler(content_types=["text"])
